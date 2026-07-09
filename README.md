@@ -140,6 +140,36 @@ permitted to test.
 
 ---
 
+## Note on Claude's cyber safeguards
+
+You may occasionally see an API error like *"Claude has safety measures that
+flagged this message for a cybersecurity topic"* while using these skills. That
+comes from Claude's **real-time cyber safeguards** — a classifier that runs at
+the API layer, before the model reads your prompt. It reacts to the *topic*
+(security work) rather than your intent, so it can flag perfectly legitimate,
+authorized bug-bounty and self-audit work.
+
+A few things worth knowing:
+
+- **It's not this repo, and there's no setting here that turns it off.** The
+  safeguard lives in Claude's API, above anything these skills do. No wording,
+  flag, or config in this project changes its decision — and please don't try to
+  phrase your prompts to slip past it; that's not a supported or reliable path.
+- **Give Claude real context.** When you *do* get through, state your actual
+  authorization up front — the program you're enrolled in, the scope, or that the
+  asset is your own (this is exactly what `scope-check` and `self-audit` are built
+  around). That helps Claude assist appropriately within a normal conversation. It
+  does **not** override the API-level classifier, but it's good practice either way.
+- **The real fix is verification.** If you do security work seriously and keep
+  hitting the safeguard, apply to Anthropic's **Cyber Verification Program**,
+  which is built for exactly this audience and grants verified access for cyber
+  topics: <https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>
+- **False positive?** If a message that genuinely isn't a cyber topic gets
+  flagged, send it through `/feedback` with the Request ID from the error so
+  Anthropic can tune the classifier.
+
+---
+
 ## License
 
 [MIT](LICENSE)
