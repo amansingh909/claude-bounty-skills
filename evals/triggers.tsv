@@ -1,0 +1,26 @@
+# prompt<TAB>expected-skill   (expected = a skill name, or "none")
+# Positive cases: the prompt should fire that skill. Negative cases: expected "none".
+here's 400 lines of httpx output, which hosts should I look at first	recon-triage
+triage this subfinder dump and tell me what's worth my time	recon-triage
+I ran amass and got a wall of subdomains, what's interesting here	recon-triage
+which of these live hosts should I poke at first	recon-triage
+is dev.example.com in scope for this program	scope-check
+here's the program's scope table — can I test this subdomain	scope-check
+the scope says *.example.com, does that cover api.a.example.com	scope-check
+am I allowed to test this asset under their policy	scope-check
+help me write up this IDOR I found	report-writer
+draft a HackerOne report for this reflected XSS	report-writer
+turn these messy repro notes into a proper vulnerability report	report-writer
+the program marked my report informative, how should I respond	triage-responder
+they closed my report as N/A, help me reply	triage-responder
+triager is asking me to show more impact, draft a response	triage-responder
+disputing a duplicate — how do I word the reply	triage-responder
+audit my own web app for security issues	self-audit
+self-audit acme, it's my app and I want to fix bugs first	self-audit
+check my site's Supabase RLS before someone else finds a hole	self-audit
+did my fix for the anon execute grant actually work	self-audit
+audit what changed in this PR on my own app	self-audit
+help me build a react login form component	none
+what's the capital of France	none
+refactor this python function to run faster	none
+write me a haiku about the ocean	none

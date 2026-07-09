@@ -68,9 +68,33 @@ for f in "${skills[@]}"; do
   fi
 done
 
+# 5. If the trigger-eval fixture exists, every expected label must be a real skill
+#    (or 'none'), and each row must be tab-separated. Keeps the eval honest.
+fixture="evals/triggers.tsv"
+if [ -f "$fixture" ]; then
+  echo "  • evals/triggers.tsv"
+  valid=" none "
+  for d in skills/*/; do valid+="$(basename "$d") "; done
+  ln=0
+  while IFS= read -r row; do
+    ln=$((ln + 1))
+    case "$row" in ''|'#'*) continue;; esac
+    if [ "$row" = "${row%$'\t'*}" ]; then
+      err "triggers.tsv line $ln: not tab-separated (need prompt<TAB>expected)"
+      continue
+    fi
+    exp=$(printf '%s' "${row##*$'\t'}" | tr -d '\r' | sed 's/^ *//;s/ *$//')
+    if [ -z "$exp" ]; then
+      err "triggers.tsv line $ln: missing expected-skill label"
+    elif [[ "$valid" != *" $exp "* ]]; then
+      err "triggers.tsv line $ln: expected '$exp' is not a skill or 'none'"
+    fi
+  done < "$fixture"
+fi
+
 echo ""
 if [ "$fail" -ne 0 ]; then
-  echo "✗ Skill frontmatter validation FAILED"
+  echo "✗ Validation FAILED"
   exit 1
 fi
-echo "✓ All skills have valid frontmatter"
+echo "✓ All skills have valid frontmatter (and the trigger fixture is consistent)"

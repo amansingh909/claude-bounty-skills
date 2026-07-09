@@ -132,6 +132,32 @@ Express/Prisma ORM app, GraphQL/Hasura):
 
 ---
 
+## Does it actually trigger?
+
+A skill only helps if Claude Code *fires* it on the right request. Two ways to see
+that for yourself — reading the source proves neither:
+
+- **Reproducible eval.** [`evals/triggers.tsv`](evals/triggers.tsv) maps realistic
+  prompts to the skill each should fire — plus negatives that should trigger
+  *nothing*. [`scripts/eval-triggers.sh`](scripts/eval-triggers.sh) runs them
+  through the API and scores triggering, so it's proof anyone can reproduce, not an
+  author's screenshot. Details in [`evals/README.md`](evals/README.md).
+
+  ```bash
+  ANTHROPIC_API_KEY=sk-... bash scripts/eval-triggers.sh
+  bash scripts/eval-triggers.sh --dry-run   # see the router prompt, no API call
+  ```
+
+- **See it live.** Record a short demo of a skill firing in your own Claude Code:
+
+  ```bash
+  pipx install asciinema                 # or: brew install asciinema
+  asciinema rec demo.cast                # then type e.g. "is dev.example.com in scope?"
+  # Ctrl-D to stop; share the .cast, or convert to a GIF with `agg demo.cast demo.gif`
+  ```
+
+---
+
 ## Authorization, ethics & scope
 
 **Authorized testing only.** Use these skills against (a) an active program
