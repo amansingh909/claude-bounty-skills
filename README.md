@@ -96,7 +96,10 @@ accept it rather than overclaim. Worked example:
 **`self-audit`** — you register your app in `assets/` and say "self-audit
 acme"; it returns a prioritized, stack-specific test plan and offers to run the
 read-only checks against your own asset, reporting only what it actually
-observed. Worked example: [`examples/self-audit.md`](examples/self-audit.md).
+observed. Because it's *your* app, it also runs the **deep first-party pass** —
+introspecting your own backend (e.g. Supabase advisors, table/function grants,
+RLS status, `SECURITY DEFINER` bodies) where the serious authorization/RLS bugs
+actually live. Worked example: [`examples/self-audit.md`](examples/self-audit.md).
 
 ---
 

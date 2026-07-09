@@ -51,6 +51,37 @@ auth: email+password; admin panel at admin.acme.example; roles user/admin
 > - Add a `Content-Security-Policy` header.
 > - Set `Secure` (and `HttpOnly`, `SameSite`) on the session cookie.
 
-Every observation above is tied to a real response — nothing is asserted that
-wasn't seen. The IDOR check, which needs state you control, is handed back rather
-than guessed.
+---
+
+**The deep pass — introspecting acme's own Supabase (read-only, since you own it):**
+
+This is where the serious bugs live. Because you own the backend, you can read its
+config as ground truth instead of guessing from outside.
+
+> Connected the Supabase MCP for project `acme-prod` and read config read-only:
+>
+> - `get_advisors(security)` → 3 × `anon_security_definer_function_executable`.
+> - Grants: `has_function_privilege('anon', 'public.set_org_plan(...)', 'EXECUTE')`
+>   = true.
+> - Read the body of `set_org_plan(p_org_id uuid, p_plan text, p_changed_by uuid)`:
+>   `SECURITY DEFINER`, **no `auth.uid()`/`auth.role()` check**, and the actor is
+>   the untrusted `p_changed_by` parameter → an unauthenticated caller can change
+>   **any** org's plan and bypass RLS. (CWE-862.)
+> - Matview `public.usage_report_6mo` has `SELECT` granted to `anon` → leaks per-org
+>   figures **and** the `org_id` UUIDs `set_org_plan` needs. The two **chain** into
+>   an unauthenticated write.
+>
+> Proven at the **grant + code level** (read-only) — nothing was mutated.
+> Reachability confirmed with a non-mutating call (valid shape, non-existent UUID
+> → normal result, not a `401`).
+>
+> **Suggested fixes:** `REVOKE EXECUTE … FROM anon`; derive the actor from
+> `auth.uid()` inside the function instead of a parameter; move the matview behind
+> an RLS-protected `security_invoker` view.
+
+---
+
+Every finding above is tied to real config or a real response. The deep pass
+proves broken authorization at the grant + code level **without mutating
+anything**, and the checks that need state you control (the IDOR, the plan-change
+write) are handed back as deliberate steps rather than guessed.

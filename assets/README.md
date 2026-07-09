@@ -22,6 +22,7 @@ Copy `EXAMPLE.md` to `assets/<yourapp>.md` and fill it in. Fields:
 | `scope` | list of things you own/authorize (wildcards ok) |
 | `out_of_scope` | anything to explicitly avoid |
 | `tech` | stack — drives which vuln classes `self-audit` prioritizes |
+| `backend` | managed backend + how to introspect it read-only (e.g. Supabase project + MCP) — enables `self-audit`'s deep first-party pass |
 | `auth` | how auth works, notable panels/roles |
 | `notes` | free-form: past findings, areas of concern, things to re-check |
 

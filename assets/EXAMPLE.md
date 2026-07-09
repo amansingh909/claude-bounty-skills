@@ -4,6 +4,7 @@ domain: acme.example
 scope: ["*.acme.example"]
 out_of_scope: ["blog.acme.example", "status.acme.example"]
 tech: [Next.js, Supabase, Vercel]
+backend: Supabase project acme-prod — connect via Supabase MCP for read-only introspection (advisors, grants, RLS, function source)
 auth: email+password; admin panel at admin.acme.example; roles user/admin
 notes: |
   Re-check IDOR on /api/invoices/{id} after the March refactor.
