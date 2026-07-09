@@ -74,17 +74,52 @@ config as ground truth instead of guessing from outside.
 > Proven at the **grant + code level** (read-only) — nothing was mutated.
 > Reachability confirmed with a non-mutating call (valid shape, non-existent UUID
 > → normal result, not a `401`).
+
+---
+
+**Closing the loop — fix, regression test, re-verify (fix-first order):**
+
+> **[Critical] Unauthenticated org-plan write via `set_org_plan` chain (CWE-862)**
 >
-> **Suggested fixes:** `REVOKE EXECUTE … FROM anon`; derive the actor from
-> `auth.uid()` inside the function instead of a parameter; move the matview behind
-> an RLS-protected `security_invoker` view.
+> **Fix:**
+> ```sql
+> REVOKE EXECUTE ON FUNCTION public.set_org_plan(uuid, text, uuid) FROM anon;
+> -- and inside the function, derive the actor from auth.uid() instead of p_changed_by
+> ```
+> Move `usage_report_6mo` behind an RLS-protected `security_invoker` view.
+>
+> **Regression test** (pgTAP — fails now, passes after the fix):
+> ```sql
+> select is(
+>   has_function_privilege('anon', 'public.set_org_plan(uuid, text, uuid)', 'EXECUTE'),
+>   false,
+>   'anon must not be able to EXECUTE set_org_plan'
+> );
+> ```
+> Run in CI so the grant can never silently come back.
+>
+> **Re-verify (after you apply the fix):** re-read
+> `has_function_privilege('anon', 'public.set_org_plan(...)', 'EXECUTE')` → now
+> `false`, and the pgTAP test above goes green. *Then* it's closed — not before.
+>
+> **[Medium] Missing CSP / cookie without `Secure` (CWE-693)** — add the header and
+> the cookie flags; regression: a header-assertion test in the app's e2e suite.
+
+**Ledger update** (`assets/acme.md`, local-only):
+
+> | id | finding | CWE | severity | status | evidence | fixed |
+> |----|---------|-----|----------|--------|----------|-------|
+> | F-1 | anon `EXECUTE` on `set_org_plan` chain | CWE-862 | Critical | open → *fixed on re-verify* | grant + fn source | — |
+> | F-2 | missing CSP / cookie `Secure` | CWE-693 | Medium | open | response headers | — |
 
 ---
 
 Every finding above is tied to real config or a real response. The deep pass
 proves broken authorization at the grant + code level **without mutating
-anything**, and the checks that need state you control (the IDOR, the plan-change
-write) are handed back as deliberate steps rather than guessed.
+anything**; the checks that need state you control (the IDOR, the plan-change
+write) are handed back as deliberate steps rather than guessed; and each confirmed
+issue ships with a fix, a **test that fails today and passes once fixed**, and a
+read-only re-verify step — so the bug is closed *and* can't quietly return.
 
 > This example uses Supabase, but the deep pass is the same shape on any stack —
 > Firebase security rules, an ORM app's route-level ownership checks (Django /

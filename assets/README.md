@@ -26,6 +26,12 @@ Copy `EXAMPLE.md` to `assets/<yourapp>.md` and fill it in. Fields:
 | `auth` | how auth works, notable panels/roles |
 | `notes` | free-form: past findings, areas of concern, things to re-check |
 
+Below the frontmatter you can also keep a **findings ledger** — a table
+`self-audit` reads at the start of each run and updates at the end (open / fixed /
+accepted-risk), so audits compound instead of restarting cold. See `EXAMPLE.md`
+for the shape. Like everything outside `EXAMPLE.md`, it stays local and is never
+committed.
+
 ## Authorization
 
 Only register assets you own or are explicitly authorized to test. This registry

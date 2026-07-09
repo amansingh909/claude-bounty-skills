@@ -16,9 +16,10 @@ it, and when it's unsure it says so instead of guessing.
 
 1. **Bug bounty** — on programs you're enrolled in. Recon → scope → report → defend.
 2. **Self-audit** — on apps **you own**. Register them in [`assets/`](assets/),
-   then `self-audit` maps your stack to the checks worth running and (opt-in) runs
-   the read-only ones against your own asset. Defensive: find and fix issues
-   before someone else does.
+   then `self-audit` maps your stack to the checks worth running, (opt-in) runs the
+   read-only ones against your own asset, and closes the loop on anything it
+   confirms — fix, a regression test that fails today and passes once fixed, and a
+   read-only re-verify. Defensive: find, fix, and keep-fixed before someone else does.
 
 ---
 
@@ -30,7 +31,7 @@ it, and when it's unsure it says so instead of guessing.
 | **`scope-check`** | Scope | Judges whether a target is in scope from a program's (often messy, wildcard-laden) scope text. Biased toward "⚠️ uncertain, verify" over a confident wrong answer. |
 | **`report-writer`** | Report | Turns raw finding notes into a triage-ready vulnerability report (HackerOne/Bugcrowd/Intigriti). Suggests severity with reasoning and a CWE, never overstates impact. |
 | **`triage-responder`** | Defend | Drafts a professional reply when a report gets pushback (Needs More Info, Informative, N/A, Duplicate). Sharpens the argument without inflating it. |
-| **`self-audit`** | Audit | Reviews an app **you own** (from your `assets/` registry): maps its stack to the highest-signal checks, hands you a concrete plan, and — if you opt in — runs the read-only subset against your own asset. Read-only, own-asset-only, never fabricates. |
+| **`self-audit`** | Audit | Reviews an app **you own** (from your `assets/` registry): maps its stack to the highest-signal checks, introspects your own backend's authz config as ground truth, ranks findings by severity, and closes the loop with a fix + regression test + re-verify for each confirmed issue. Also runs owner-only checks a black-box tester can't (secrets in git history, dependency CVEs, CI/CD & IaC misconfig) and can scope to a diff/PR. Read-only, own-asset-only, never fabricates. |
 
 Each lives in `skills/<name>/SKILL.md`. See per-skill examples in
 [`examples/`](examples/).
@@ -80,7 +81,7 @@ most need nothing beyond notes you already have. What each one pairs with:
 | `scope-check` | the program's scope text + a target | nothing extra |
 | `report-writer` | your raw finding notes | nothing extra |
 | `triage-responder` | the finding + the triager's message | nothing extra |
-| `self-audit` | for the deep pass, **read access to your own backend** | your backend's console / management API or MCP (e.g. the Supabase MCP), DB creds, or the source repo — *not* recon tools |
+| `self-audit` | for the deep pass, **read access to your own backend**; for owner-only checks, your source repo | your backend's console / management API or MCP (e.g. the Supabase MCP), DB creds, or the source repo — *not* recon tools. Owner-only checks pair with read-only scanners you likely already have: `gitleaks`/`trufflehog` (secrets in history), `npm audit`/`pip-audit`/`osv-scanner` (dependency CVEs) |
 
 Install only what the skill you're using needs. Nothing here is bundled or
 auto-installed, so you stay in control of what runs on your machine.
@@ -117,7 +118,13 @@ read-only checks against your own asset, reporting only what it actually
 observed. Because it's *your* app, it also runs the **deep first-party pass** —
 introspecting your own backend's authorization config where the serious authz
 bugs live, on whatever stack you run (Supabase RLS/grants, Firebase rules, an ORM
-app's route-level checks, GraphQL permissions, cloud IAM). Worked example:
+app's route-level checks, GraphQL permissions, cloud IAM) — plus **owner-only
+checks** a black-box tester can't (secrets buried in git history, known-CVE
+dependencies, CI/CD and IaC misconfig). It ranks findings by severity, and for
+each confirmed one **closes the loop**: a concrete fix, a regression test that
+fails today and passes once fixed, and a read-only re-verify — logged to a local
+findings ledger so the next audit builds on the last. Point it at a diff/PR to
+scope to just what changed. Worked example:
 [`examples/self-audit.md`](examples/self-audit.md).
 
 ---
