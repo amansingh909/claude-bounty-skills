@@ -1,7 +1,7 @@
 # claude-bounty-skills
 
-**Claude Code skills for bug bounty hunting.** They bring the judgment — you
-bring the tools.
+**Claude Code skills for bug bounty hunting — and security-auditing the web apps
+you own.** They bring the judgment — you bring the tools.
 
 These aren't wrappers that run `subfinder` for you (that's a shell command, not
 a skill). Each one adds the reasoning layer where an LLM actually helps, and
