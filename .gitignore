@@ -4,5 +4,18 @@ assets/*.md
 !assets/EXAMPLE.md
 !assets/README.md
 
+# Engagement work logs — one file per target, holding real program names,
+# findings, and drafted reports. Local-only; only the template + README are tracked.
+notes/*
+!notes/README.md
+!notes/EXAMPLE.md
+
+# Common places generated docs land — protected by default so a saved report,
+# finding, or working note can never be pushed by accident.
+reports/
+findings/
+engagements/
+*.local.md
+
 # Internal planning/design docs — kept locally, never published.
 docs/superpowers/

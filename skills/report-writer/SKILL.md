@@ -91,6 +91,13 @@ so the triager can agree or adjust, rather than asserting a number.
 - **Missing the "so what".** A bug with no articulated impact reads as a
   non-issue. Always connect the technical fact to a real-world consequence.
 
+## Continuity (session log)
+
+If a local engagement log for this program exists (`notes/<program>.md` in your
+working directory — gitignored, one file per program), read it first for prior
+findings and context, then append the finished report (or a note of where you
+saved it). Only read a log that's actually present — never invent past findings.
+
 ## Ethics
 
 Only write reports for testing the user is authorized to do — an active program

@@ -82,6 +82,14 @@ If ⚠️: state exactly what's ambiguous and what the user should confirm.
 - **Confusing asset scope with technique scope.** "In scope" for the asset
   doesn't authorize automated scanning or DoS if the rules forbid them.
 
+## Continuity (session log)
+
+If a local engagement log for this program exists (`notes/<program>.md` in your
+working directory — gitignored, one file per program), read it first so you don't
+re-adjudicate a target you already ruled on, then append this target and its
+verdict with the deciding scope line. Only read a log that's actually present —
+never invent past decisions.
+
 ## Ethics
 
 This skill exists to keep testing authorized and in-bounds. Never rationalize a

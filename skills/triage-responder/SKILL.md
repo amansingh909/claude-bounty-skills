@@ -81,6 +81,14 @@ user should attach (screenshot, second request, log) to make the reply land.
 - **Being combative.** The triager is a person doing a job; treat them as an
   ally in getting to the right call.
 
+## Continuity (session log)
+
+If a local engagement log for this report's program exists (`notes/<program>.md`
+in your working directory — gitignored, one file per program), read it first for
+the original finding and any earlier exchange, then append the triager's status
+and the reply you drafted. Only read a log that's actually present — never invent
+past correspondence.
+
 ## Ethics
 
 Never misrepresent what was tested or observed to change a decision. If the

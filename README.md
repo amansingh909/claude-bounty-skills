@@ -40,6 +40,23 @@ Each lives in `skills/<name>/SKILL.md`. See per-skill examples in
 
 ---
 
+## Your work stays local
+
+Two gitignored workspaces keep your context across sessions — and keep real target
+data off GitHub:
+
+- **[`assets/`](assets/)** — apps you own, for `self-audit` (with a findings ledger).
+- **[`notes/`](notes/)** — a per-engagement log the skills read at the start of a
+  session and append to at the end, so Claude picks up where you left off instead of
+  starting cold.
+
+Only the fictional `EXAMPLE.md` templates are committed; everything else under
+`assets/` and `notes/` (plus `reports/`, `findings/`, `*.local.md`) is ignored by
+default, so real program names, findings, and drafted reports never leave your
+machine.
+
+---
+
 ## Install
 
 One command (clones to a temp dir, copies the skills, cleans up):

@@ -236,6 +236,10 @@ On each run: read the ledger first, re-check `open` items, mark newly-`fixed` on
 regressed. Statuses: `open`, `fixed`, `accepted-risk` (record *why* the user chose
 to accept it). This is the memory that turns one-shot audits into a trend line.
 
+For work that spans more than one asset (e.g. a whole program), also keep a running
+`notes/<program>.md` log (gitignored) — the ledger here is the structured per-asset
+state; the notes log is the session-by-session timeline. Both stay local.
+
 ## Output Format
 
 ```

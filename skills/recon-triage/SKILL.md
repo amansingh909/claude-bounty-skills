@@ -87,6 +87,14 @@ that honestly rather than manufacturing interest.
   `api.` subdomain — don't over-index on flashy names at the expense of obvious
   attack surface like APIs and auth endpoints.
 
+## Continuity (session log)
+
+Bug-bounty work spans sessions. If a local engagement log for this program exists
+(`notes/<program>.md` in your working directory — gitignored, one file per
+program), read it first so you build on earlier triage instead of repeating it,
+then append this run's shortlist and the signal behind each host. Only read a log
+that's actually present — never invent past history.
+
 ## Ethics
 
 Prioritizing attack surface assumes the hosts are in an authorized program. If a
