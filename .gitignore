@@ -1,0 +1,5 @@
+# Real asset files live locally and must NEVER reach the public repo.
+# Only the fictional template and the registry README are tracked.
+assets/*.md
+!assets/EXAMPLE.md
+!assets/README.md
