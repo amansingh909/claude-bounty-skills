@@ -12,6 +12,16 @@ it, and when it's unsure it says so instead of guessing.
 
 ---
 
+## Two ways to use this
+
+1. **Bug bounty** — on programs you're enrolled in. Recon → scope → report → defend.
+2. **Self-audit** — on apps **you own**. Register them in [`assets/`](assets/),
+   then `self-audit` maps your stack to the checks worth running and (opt-in) runs
+   the read-only ones against your own asset. Defensive: find and fix issues
+   before someone else does.
+
+---
+
 ## The skills
 
 | Skill | Stage | What it does |
@@ -20,6 +30,7 @@ it, and when it's unsure it says so instead of guessing.
 | **`scope-check`** | Scope | Judges whether a target is in scope from a program's (often messy, wildcard-laden) scope text. Biased toward "⚠️ uncertain, verify" over a confident wrong answer. |
 | **`report-writer`** | Report | Turns raw finding notes into a triage-ready vulnerability report (HackerOne/Bugcrowd/Intigriti). Suggests severity with reasoning and a CWE, never overstates impact. |
 | **`triage-responder`** | Defend | Drafts a professional reply when a report gets pushback (Needs More Info, Informative, N/A, Duplicate). Sharpens the argument without inflating it. |
+| **`self-audit`** | Audit | Reviews an app **you own** (from your `assets/` registry): maps its stack to the highest-signal checks, hands you a concrete plan, and — if you opt in — runs the read-only subset against your own asset. Read-only, own-asset-only, never fabricates. |
 
 Each lives in `skills/<name>/SKILL.md`. See per-skill examples in
 [`examples/`](examples/).
@@ -82,14 +93,28 @@ sharpens the real impact — or, if you can't back a stronger claim, tells you t
 accept it rather than overclaim. Worked example:
 [`examples/triage-responder.md`](examples/triage-responder.md).
 
+**`self-audit`** — you register your app in `assets/` and say "self-audit
+acme"; it returns a prioritized, stack-specific test plan and offers to run the
+read-only checks against your own asset, reporting only what it actually
+observed. Worked example: [`examples/self-audit.md`](examples/self-audit.md).
+
 ---
 
-## Ethics & scope
+## Authorization, ethics & scope
 
-These skills assume **authorized testing only** — an active program you're
-enrolled in, or assets you own. `scope-check` exists specifically to keep you
-in-bounds, and `report-writer` will flag a finding that looks out of scope. Don't
-use these against targets you're not permitted to test.
+**Authorized testing only.** Use these skills against (a) an active program
+you're enrolled in, or (b) assets **you own or are explicitly authorized to
+test**. By registering an asset or running `self-audit`, you attest you have that
+authorization.
+
+The design is **defensive**: `scope-check` keeps you in-bounds, `report-writer`
+flags out-of-scope findings, and `self-audit` runs only read-only checks against
+assets you've declared as your own. Don't point any of this at targets you're not
+permitted to test.
+
+> Note: nothing here attempts to influence any AI provider's safety systems. It
+> keeps the *work* authorized, read-only, and defensive — that's what makes it
+> legitimate.
 
 ---
 
