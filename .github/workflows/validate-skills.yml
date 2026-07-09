@@ -1,0 +1,14 @@
+name: validate-skills
+
+# Fail fast if any skill's frontmatter is broken, so a bad edit can never ship.
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate skill frontmatter
+        run: bash scripts/validate-skills.sh

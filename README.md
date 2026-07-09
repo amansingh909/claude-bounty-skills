@@ -1,5 +1,7 @@
 # claude-bounty-skills
 
+[![validate-skills](https://github.com/amansingh909/claude-bounty-skills/actions/workflows/validate-skills.yml/badge.svg)](https://github.com/amansingh909/claude-bounty-skills/actions/workflows/validate-skills.yml)
+
 **Claude Code skills for bug bounty hunting — and security-auditing the web apps
 you own.** They bring the judgment — you bring the tools.
 
