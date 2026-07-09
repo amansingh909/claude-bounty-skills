@@ -156,6 +156,10 @@ that for yourself — reading the source proves neither:
   # Ctrl-D to stop; share the .cast, or convert to a GIF with `agg demo.cast demo.gif`
   ```
 
+A visual map of the whole fixture — all 24 cases and the router mechanism — lives in
+[`docs/triggering-eval.html`](docs/triggering-eval.html); open it in a browser (or
+serve it with GitHub Pages).
+
 ---
 
 ## Authorization, ethics & scope
