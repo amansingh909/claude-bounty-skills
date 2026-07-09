@@ -3,3 +3,6 @@
 assets/*.md
 !assets/EXAMPLE.md
 !assets/README.md
+
+# Internal planning/design docs — kept locally, never published.
+docs/superpowers/
