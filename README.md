@@ -97,9 +97,10 @@ accept it rather than overclaim. Worked example:
 acme"; it returns a prioritized, stack-specific test plan and offers to run the
 read-only checks against your own asset, reporting only what it actually
 observed. Because it's *your* app, it also runs the **deep first-party pass** —
-introspecting your own backend (e.g. Supabase advisors, table/function grants,
-RLS status, `SECURITY DEFINER` bodies) where the serious authorization/RLS bugs
-actually live. Worked example: [`examples/self-audit.md`](examples/self-audit.md).
+introspecting your own backend's authorization config where the serious authz
+bugs live, on whatever stack you run (Supabase RLS/grants, Firebase rules, an ORM
+app's route-level checks, GraphQL permissions, cloud IAM). Worked example:
+[`examples/self-audit.md`](examples/self-audit.md).
 
 ---
 

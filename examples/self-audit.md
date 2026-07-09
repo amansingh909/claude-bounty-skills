@@ -85,3 +85,8 @@ Every finding above is tied to real config or a real response. The deep pass
 proves broken authorization at the grant + code level **without mutating
 anything**, and the checks that need state you control (the IDOR, the plan-change
 write) are handed back as deliberate steps rather than guessed.
+
+> This example uses Supabase, but the deep pass is the same shape on any stack —
+> Firebase security rules, an ORM app's route-level ownership checks (Django /
+> Rails / Node), GraphQL role permissions, or cloud IAM. The skill goes to
+> whichever source of truth your backend keeps its authorization in.

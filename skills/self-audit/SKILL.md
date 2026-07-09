@@ -55,8 +55,7 @@ present in the asset:
 |----------------|----------------------|
 | REST/GraphQL API, `/api/*` with id params | IDOR / broken object-level authz — increment/swap ids across your own accounts |
 | Role-based access (user/admin panels) | Broken function-level authz — request admin routes as a low-priv user |
-| Supabase / Firebase / row-level security | RLS/rules bypass — read/write rows you shouldn't own |
-| **Backend you own** (Supabase/Firebase/Postgres, admin access) | **Introspect it directly** — the highest-signal first-party check. Security advisors, `anon`/`authenticated` grants on tables & functions, RLS status, `SECURITY DEFINER` functions executable by `anon`, anon-readable views/matviews, function bodies missing an auth check. See the deep pass below. |
+| **Backend you own** (any stack — Supabase, Firebase, an ORM app, GraphQL, serverless) | **Introspect its authz config directly** — the highest-signal first-party check. Read the rules/grants/route-handlers as ground truth and find where a role can reach what it shouldn't. Per-stack specifics in the deep pass below. |
 | Any deployed app | Exposed secrets (`.env`, keys in JS bundles, source maps), security headers, cookie flags |
 | Auth flows | Session fixation, weak reset tokens, missing rate limits on login |
 | File upload / rendering | Stored XSS, SSRF via URL fetchers, path traversal |
@@ -68,35 +67,42 @@ request** (e.g. a `curl` line). Keep it focused — the highest-signal checks fo
 ## First-Party Deep Pass — introspect your own backend (highest signal)
 
 Because it's *your* app, you can do what no black-box tester can: read the
-backend's own configuration as ground truth. This is where first-party audits
-find the criticals that surface-level probing never will — broken authorization,
-RLS gaps, over-broad grants. **Prefer this pass whenever the asset has a managed
-backend you can authenticate to** (Supabase, Firebase, a database you own),
-reached via its management API / MCP or a read-only connection.
+backend's own authorization config as ground truth. This is where first-party
+audits find the criticals that surface probing never will — broken authorization,
+over-broad permissions, missing auth checks. **The principle is stack-agnostic:**
+whatever the backend, enumerate *who can do what without proper authorization*,
+read the authz rules/config/code directly, and find the gap between what a role
+*should* reach and what it *can*. Prefer this pass whenever you can authenticate
+to the backend (its console, management API/MCP, or the source/config repo).
 
-**Supabase / Postgres (Supabase MCP or a read-only DB connection):**
-- **Security advisors** — pull the platform's own lint (`get_advisors(security)`).
-  Triage every warning yourself; don't take the label at face value (an advisor's
-  "critical" can be Low once you check that grants lock the table down, and vice
-  versa).
-- **Grants** — which tables/functions grant `EXECUTE`/`SELECT` to `anon` or
-  `authenticated`? (`has_function_privilege`, `has_table_privilege`,
-  `information_schema.role_table_grants`).
-- **RLS** — which `public` tables have RLS disabled? Which policies are
-  `USING (true)` / `WITH CHECK (true)`?
-- **`SECURITY DEFINER` functions executable by `anon`** — read each body. Does it
-  check `auth.uid()` / `auth.role()`, or does it take the acting user as a
-  spoofable *parameter* and then write privileged data? That pattern is a
-  broken-authorization → RLS-bypass bug (the class behind most Supabase criticals).
-- **Views / materialized views granted to `anon`** — matviews can't enforce RLS.
-  Do they leak cross-tenant data, or the UUIDs (`organization_id`, `site_id`)
-  that other endpoints need as inputs? Two such issues often *chain*.
+Go to wherever your stack keeps its authorization — a few common ones:
 
-**Any backend:** enumerate IAM/role grants, default-open policies, admin
-endpoints, and secrets/keys reachable from the client bundle. Read config as
-ground truth and reason about who can act without authorization.
+- **Supabase / Postgres RLS** (Supabase MCP or a read-only DB connection):
+  security advisors (`get_advisors`); `anon`/`authenticated` grants on tables &
+  functions (`has_function_privilege`, `role_table_grants`); RLS status and
+  `USING (true)`/`WITH CHECK (true)` policies; `anon`-executable
+  `SECURITY DEFINER` functions with no `auth.uid()` check (actor passed as a
+  spoofable parameter → RLS bypass); `anon`-readable views/matviews (matviews
+  can't enforce RLS). These often *chain*.
+- **Firebase / Firestore / Storage:** read your security rules — any
+  `allow read, write: if true`, rules missing `request.auth != null`, or checks
+  that trust client-supplied fields. Test against the Firebase emulator; review
+  Storage rules separately from database rules.
+- **App-layer authz** (Django, Rails, Laravel, Node/Express + Prisma/TypeORM, …):
+  usually there's no RLS — the check lives in code. Read the route
+  handlers/serializers: endpoints that fetch by id with no ownership/tenant filter
+  (IDOR), admin routes missing a role check, mass-assignment letting a user set
+  fields they shouldn't, ORM queries that forget to scope by the current user/org.
+- **GraphQL** (Hasura, Apollo, PostGraphile): per-role field/row/column
+  permissions, unauthenticated queries, whether introspection is exposed in prod,
+  Hasura permission rules with `{}` (allow-all) filters.
+- **Cloud / serverless** (AWS Amplify/AppSync, Lambda + API Gateway, Cloudflare
+  Workers): IAM policies and resource grants (over-broad `*`), whether API Gateway
+  authorizers are actually attached, AppSync resolver auth rules, public buckets.
+- **Any backend:** enumerate IAM/role grants, default-open policies, admin
+  endpoints, and secrets/keys reachable from the client bundle.
 
-**Prove it safely.** Confirm findings at the **grant/permission + code level**
+**Prove it safely.** Confirm findings at the **config/permission + code level**
 (read-only introspection) rather than by mutating production. A non-mutating live
 call — a syntactically valid request with a non-existent id that returns a normal
 result instead of a `401`/permission error — confirms *reachability* without
