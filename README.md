@@ -69,6 +69,24 @@ situation (e.g. "help me write up this IDOR", "is `dev.example.com` in scope?",
 
 ---
 
+## Prerequisites & recommended tooling
+
+The skills are the judgment layer — they **don't ship or install any tools**, and
+most need nothing beyond notes you already have. What each one pairs with:
+
+| Skill | You bring | Where to get it |
+|-------|-----------|-----------------|
+| `recon-triage` | recon output — subdomains / live-host tables | subfinder · amass · httpx (ProjectDiscovery's [`pdtm`](https://github.com/projectdiscovery/pdtm) installs the suite in one line, or `go install` each) |
+| `scope-check` | the program's scope text + a target | nothing extra |
+| `report-writer` | your raw finding notes | nothing extra |
+| `triage-responder` | the finding + the triager's message | nothing extra |
+| `self-audit` | for the deep pass, **read access to your own backend** | your backend's console / management API or MCP (e.g. the Supabase MCP), DB creds, or the source repo — *not* recon tools |
+
+Install only what the skill you're using needs. Nothing here is bundled or
+auto-installed, so you stay in control of what runs on your machine.
+
+---
+
 ## Examples
 
 **`report-writer`** — you paste:
