@@ -121,7 +121,104 @@ write) are handed back as deliberate steps rather than guessed; and each confirm
 issue ships with a fix, a **test that fails today and passes once fixed**, and a
 read-only re-verify step — so the bug is closed *and* can't quietly return.
 
-> This example uses Supabase, but the deep pass is the same shape on any stack —
-> Firebase security rules, an ORM app's route-level ownership checks (Django /
-> Rails / Node), GraphQL role permissions, or cloud IAM. The skill goes to
-> whichever source of truth your backend keeps its authorization in.
+---
+
+## Same loop, other stacks
+
+The walkthrough above is Supabase, but nothing about the loop is Supabase-specific.
+The skill goes to wherever *your* backend keeps its authorization, reads it as
+ground truth, and closes the same loop. Three more, condensed to the deep pass +
+fix + regression test + re-verify.
+
+### Firebase / Firestore
+
+**Asset:** `tech: [React, Firebase (Firestore + Storage)]`. Source of truth:
+`firestore.rules`.
+
+> **Deep pass (read your own rules):**
+> ```
+> match /users/{uid} {
+>   allow read: if request.auth != null;   // authenticated — but NOT the owner
+> }
+> ```
+> Any *logged-in* user can read **any** user's profile (name, email, phone).
+> Authentication ≠ authorization. (CWE-863.)
+>
+> **Confirm (read-only):** against the Firebase emulator, an authenticated `get`
+> of a `uid` you don't own returns the doc — no write, no prod touched.
+>
+> **[High] Broken object-level authz on `/users/{uid}` (CWE-863)**
+> **Fix:** `allow read: if request.auth.uid == uid;`
+> **Regression test** (`@firebase/rules-unit-testing`, fails now / passes after):
+> ```js
+> await assertFails(getDoc(doc(otherUserDb, 'users', victimUid)));  // cross-user read
+> await assertSucceeds(getDoc(doc(ownerDb,     'users', ownerUid))); // own read
+> ```
+> **Re-verify:** re-run the emulator suite → the cross-user read now fails.
+> Check `storage.rules` separately — a `if true` there leaks uploaded files.
+>
+> Ledger: `F-1 | /users read not owner-scoped | CWE-863 | High | open`
+
+### Node/Express + Prisma (an ORM app — no RLS, the check lives in code)
+
+**Asset:** `tech: [Express, Prisma, Postgres]`. Source of truth: the route handler.
+
+> **Deep pass (read your own handler):**
+> ```js
+> app.get('/api/invoices/:id', requireAuth, async (req, res) => {
+>   const inv = await prisma.invoice.findUnique({ where: { id: req.params.id } });
+>   res.json(inv);   // never checks inv.userId === req.user.id  → IDOR
+> });
+> ```
+> The query scopes by `id` but not by owner. (CWE-639.)
+>
+> **Confirm (read-only, own accounts — fits active mode exactly):** GET
+> `/api/invoices/<B's id>` with **user A's** cookie → `200` with B's invoice.
+> Two accounts you control, a plain GET, nothing mutated.
+>
+> **[High] IDOR on `/api/invoices/:id` (CWE-639)**
+> **Fix:** scope the query and 404 on miss:
+> ```js
+> const inv = await prisma.invoice.findFirst({
+>   where: { id: req.params.id, userId: req.user.id },
+> });
+> if (!inv) return res.sendStatus(404);
+> ```
+> **Regression test** (supertest — fails now / passes after):
+> ```js
+> await request(app).get(`/api/invoices/${bInvoiceId}`)
+>   .set('Cookie', aSession).expect(404);   // A must not read B's invoice
+> ```
+> **Re-verify:** re-run the test → green; re-read the handler shows the scoped query.
+> **Owner-only bonus:** `npm audit` flagged a known-CVE `axios` in the lockfile →
+> pin it (`F-2`, Medium).
+>
+> Ledger: `F-1 | invoice fetch not owner-scoped | CWE-639 | High | open`
+
+### GraphQL (Hasura)
+
+**Asset:** `tech: [Hasura, Postgres]`. Source of truth: the role permissions in
+Hasura metadata.
+
+> **Deep pass (read your own permission rules):** the `user` role's `select` on
+> `payments` has row filter `{}` (allow-all), and introspection is on in prod.
+> Any authenticated user queries **every** user's payments. (CWE-863.)
+>
+> **Confirm (read-only):** run the `payments` query as the low-priv `user` role
+> → rows for other users come back. A read, nothing changed.
+>
+> **[Critical] Allow-all row permission on `payments` (CWE-863)**
+> **Fix:** set the row filter to `{"user_id":{"_eq":"X-Hasura-User-Id"}}`; disable
+> introspection in production.
+> **Regression test:** a query run as `user` asserts it returns **only** the
+> caller's own `user_id` rows (fails now, passes after).
+> **Re-verify:** re-run the query as the low-priv role → only own rows return.
+>
+> Ledger: `F-1 | payments select filter {} (allow-all) | CWE-863 | Critical | open`
+
+---
+
+Different stacks, one loop: read the authorization source of truth, prove the gap
+read-only, fix it, and leave behind a test that fails today and passes once fixed.
+Cloud IAM (public buckets, wildcard policies) and Rails/Django/Laravel apps follow
+the same shape — the skill just goes to wherever *that* stack keeps its authz.

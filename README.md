@@ -124,7 +124,8 @@ dependencies, CI/CD and IaC misconfig). It ranks findings by severity, and for
 each confirmed one **closes the loop**: a concrete fix, a regression test that
 fails today and passes once fixed, and a read-only re-verify — logged to a local
 findings ledger so the next audit builds on the last. Point it at a diff/PR to
-scope to just what changed. Worked example:
+scope to just what changed. Worked examples across stacks (Supabase, Firebase, an
+Express/Prisma ORM app, GraphQL/Hasura):
 [`examples/self-audit.md`](examples/self-audit.md).
 
 ---
