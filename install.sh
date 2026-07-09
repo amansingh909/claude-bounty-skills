@@ -52,4 +52,4 @@ done
 
 echo "==> Installed ${#installed[@]} skills to ${TARGET}:"
 for s in "${installed[@]}"; do echo "      - ${s}"; done
-echo "==> Done. Open Claude Code and describe a bounty task to trigger them."
+echo "==> Done. Open Claude Code and describe a bounty or self-audit task to trigger them."
