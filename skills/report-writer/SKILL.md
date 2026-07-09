@@ -56,7 +56,11 @@ worked IDOR example.
    Redact real victim data; use the hunter's own second account instead.
 5. **Impact** — concrete, realistic consequences. Tie to CVSS if the program
    uses it, but explain in plain terms first.
-6. **Remediation** — the standard fix for this class of bug, specific to what
+6. **Classification** — the CWE ID (e.g. CWE-639 for IDOR) plus the program's
+   own taxonomy: a HackerOne weakness, a Bugcrowd VRT category, or an Intigriti
+   type. Not every program uses CVSS — if it uses Bugcrowd's VRT or a custom
+   rating, map to that instead of forcing a CVSS vector.
+7. **Remediation** — the standard fix for this class of bug, specific to what
    was seen.
 
 ## Severity Guidance

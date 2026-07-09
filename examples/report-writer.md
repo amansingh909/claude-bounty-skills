@@ -44,8 +44,11 @@ essential that's missing and never invents impact or data.
 > PII (names, billing addresses, purchase history) enables targeted phishing or
 > fraud. No privileges or user interaction required.
 >
-> **Severity:** High — any logged-in user, mass-enumerable, PII exposure.
-> `CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N`.
+> **Severity:** Suggested High — though the CVSS 3.1 base for this vector is
+> **6.4 (Medium)**, since it's read-only and one record per request. The bump to
+> High rests on sequential IDs making the whole table enumerable (mass PII),
+> which the base score doesn't capture. `CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N`,
+> CWE-639.
 >
 > **Remediation**
 > Enforce an ownership check: verify the invoice's `customer_id` matches the

@@ -82,8 +82,15 @@ PII that could enable targeted phishing or fraud. No special privileges or user
 interaction required.
 
 ### Severity
-High. Unauthenticated-adjacent (any logged-in user), mass-enumerable, exposes
-PII for all customers. CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N.
+Suggested: **High.** Be honest about the math, though: the CVSS 3.1 base for
+this vector is **6.4 (Medium)** — the bug is read-only (`I:N/A:N`) and returns
+one record per request. The escalation to High rests on the sequential IDs
+making the *entire* invoice table enumerable (mass PII exposure), which the CVSS
+base score doesn't capture well. Present both the vector and the
+mass-enumeration reasoning so the triager can weigh in rather than taking a bare
+number.
+`CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N` (base 6.4). CWE-639 (Authorization
+Bypass Through User-Controlled Key).
 
 ### Remediation
 Enforce an ownership check on the invoice lookup: verify the invoice's

@@ -4,9 +4,8 @@
 bring the tools.
 
 These aren't wrappers that run `subfinder` for you (that's a shell command, not
-a skill). Each one adds the reasoning layer where an LLM actually helps: turning
-messy notes into a clean report, judging fuzzy scope, and triaging a wall of
-recon output down to what's worth your time.
+a skill). Each one adds the reasoning layer where an LLM actually helps, and
+together they cover the full arc of a bounty: **recon → scope → report → defend.**
 
 Every skill is built to **never fabricate**: it reasons only from what you give
 it, and when it's unsure it says so instead of guessing.
@@ -15,11 +14,12 @@ it, and when it's unsure it says so instead of guessing.
 
 ## The skills
 
-| Skill | What it does |
-|-------|--------------|
-| **`report-writer`** | Turns raw finding notes into a triage-ready, properly-framed vulnerability report (HackerOne-style). Suggests severity with reasoning, never overstates impact. |
-| **`scope-check`** | Judges whether a target is in scope from a program's (often messy, wildcard-laden) scope text. Biased toward "⚠️ uncertain, verify" over a confident wrong answer. |
-| **`recon-triage`** | Reads your enumeration output (subfinder/httpx/amass) and tells you which hosts to look at first, and why. Prioritizes attention — never claims a vuln. |
+| Skill | Stage | What it does |
+|-------|-------|--------------|
+| **`recon-triage`** | Recon | Reads your enumeration output (subfinder/httpx/amass) and tells you which hosts to look at first, and why. Prioritizes attention — never claims a vuln. |
+| **`scope-check`** | Scope | Judges whether a target is in scope from a program's (often messy, wildcard-laden) scope text. Biased toward "⚠️ uncertain, verify" over a confident wrong answer. |
+| **`report-writer`** | Report | Turns raw finding notes into a triage-ready vulnerability report (HackerOne/Bugcrowd/Intigriti). Suggests severity with reasoning and a CWE, never overstates impact. |
+| **`triage-responder`** | Defend | Drafts a professional reply when a report gets pushback (Needs More Info, Informative, N/A, Duplicate). Sharpens the argument without inflating it. |
 
 Each lives in `skills/<name>/SKILL.md`. See per-skill examples in
 [`examples/`](examples/).
@@ -28,16 +28,29 @@ Each lives in `skills/<name>/SKILL.md`. See per-skill examples in
 
 ## Install
 
-Clone into your Claude Code skills directory:
+One command (clones to a temp dir, copies the skills, cleans up):
 
 ```bash
 # user-level (available in every project)
+curl -fsSL https://raw.githubusercontent.com/amansingh909/claude-bounty-skills/master/install.sh | bash
+
+# or project-level (run from your project root)
+curl -fsSL https://raw.githubusercontent.com/amansingh909/claude-bounty-skills/master/install.sh | bash -s -- --project
+```
+
+Or do it by hand:
+
+```bash
 git clone https://github.com/amansingh909/claude-bounty-skills.git
+mkdir -p ~/.claude/skills                                  # user-level
 cp -r claude-bounty-skills/skills/* ~/.claude/skills/
 
-# or project-level
-cp -r claude-bounty-skills/skills/* .claude/skills/
+# or project-level, from your project root:
+mkdir -p .claude/skills && cp -r claude-bounty-skills/skills/* .claude/skills/
 ```
+
+> Piping a script from the internet into `bash` is convenient but you're trusting
+> the source — [read `install.sh`](install.sh) first if you'd rather not.
 
 Then just describe your task in Claude Code — the skill triggers on the matching
 situation (e.g. "help me write up this IDOR", "is `dev.example.com` in scope?",
@@ -62,6 +75,12 @@ PoC, realistic impact, a justified severity, and remediation. Worked example:
 **`recon-triage`** — you paste 400 lines of httpx output; it returns a tight
 shortlist of the hosts worth manual attention with the signal behind each.
 Worked example: [`examples/recon-triage.md`](examples/recon-triage.md).
+
+**`triage-responder`** — your report came back "Informative"; you give it the
+finding and the triager's message, and it drafts a professional reply that
+sharpens the real impact — or, if you can't back a stronger claim, tells you to
+accept it rather than overclaim. Worked example:
+[`examples/triage-responder.md`](examples/triage-responder.md).
 
 ---
 
